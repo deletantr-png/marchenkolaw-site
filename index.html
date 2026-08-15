@@ -309,14 +309,38 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <div class="adv-grid"><div class="adv reveal"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5a2 2 0 0 1 2-2h12v16H6a2 2 0 0 0-2 2Z"/><path d="M18 3v16"/></svg></div><h3>Реальний судовий досвід</h3><p>Адвокатська практика та досвід ведення справ у судах усіх інстанцій — від першої інстанції до касації.</p></div><div class="adv reveal"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1.4"/></svg></div><h3>Комплексний підхід</h3><p>Кожну справу ведемо системно: аналіз документів, оцінка ризиків, чітка стратегія та її послідовна реалізація.</p></div><div class="adv reveal"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M7 21h10M5 7h14M12 3 5 7l-3 6a4 4 0 0 0 8 0L9 7m3 0 7-4M12 3l7 4-3 6a4 4 0 0 0 8 0l-3-6"/></svg></div><h3>Чітка правова позиція</h3><p>Формуємо обґрунтовану позицію з посиланням на чинне законодавство та актуальну практику Верховного Суду.</p></div><div class="adv reveal"><div class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg></div><h3>Конфіденційність</h3><p>Адвокатська таємниця й персональний супровід: Ваша інформація захищена законом і залишається між нами.</p></div></div>
 </div></section>
 
-<section class="cta-band"><div class="wrap">
-  <div>
-    <h2>Не впевнені, чи потрібен адвокат саме зараз?</h2>
-    <p>Залиште заявку — ми проаналізуємо ситуацію та підкажемо оптимальний план дій.</p>
+<section class="section on-navy" id="wizard"><div class="wrap">
+  <div class="section-head center reveal">
+    <span class="eyebrow center-line">Не знаєте з чого почати?</span>
+    <h2>Знайдіть свій напрям за два кроки</h2>
+    <p>Оберіть, що ближче до Вашої ситуації, — і ми одразу покажемо потрібний розділ.</p>
   </div>
-  <div class="btns">
-    <a class="btn btn--gold" href="index.html#contact">Записатися на консультацію</a>
-    <a class="btn btn--outline" href="tel:+380978786500"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5c0 9 6 15 15 15l1-4-5-2-2 2c-2-1-4-3-5-5l2-2-2-5-4 1Z"/></svg> +38 (097) 878-65-00</a>
+  <div class="wizard reveal">
+    <div class="wizard-step" id="wz-step1">
+      <p class="wizard-q">Що найкраще описує Вашу ситуацію?</p>
+      <div class="wizard-options">
+        <button class="wizard-opt" type="button" data-group="family">Сім'я та особисті питання</button>
+        <button class="wizard-opt" type="button" data-group="property">Майно та нерухомість</button>
+        <button class="wizard-opt" type="button" data-group="business">Бізнес та фінанси</button>
+        <button class="wizard-opt" type="button" data-group="state">Держава, компенсації, пенсії</button>
+        <button class="wizard-opt" type="button" data-group="dispute">Судовий спір, стягнення боргу</button>
+      </div>
+    </div>
+    <div class="wizard-step" id="wz-step2" hidden>
+      <p class="wizard-q" id="wz-step2-q">Уточніть деталі:</p>
+      <div class="wizard-options" id="wz-step2-opts"></div>
+      <button class="wizard-back" id="wz-back" type="button">← Обрати іншу категорію</button>
+    </div>
+    <div class="wizard-result" id="wz-result" hidden>
+      <p class="wizard-result-label">Вам підійде</p>
+      <h3 id="wz-result-title"></h3>
+      <p id="wz-result-desc"></p>
+      <div class="wizard-result-btns">
+        <a class="btn btn--gold" id="wz-result-link" href="#">Перейти до розділу</a>
+        <a class="btn btn--outline" href="index.html#contact">Або одразу записатися</a>
+      </div>
+      <button class="wizard-back" id="wz-restart" type="button">← Почати спочатку</button>
+    </div>
   </div>
 </div></section>
 
