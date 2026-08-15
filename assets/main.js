@@ -283,4 +283,135 @@
     wzBack.addEventListener("click", wzShowStep1);
     wzRestart.addEventListener("click", wzShowStep1);
   }
+
+  /* ---- Deadline calculator (kalkulyatory.html) ---- */
+  var dlTypeEl = document.getElementById("dl-type");
+  if (dlTypeEl) {
+    var dlRules = {
+      inheritance: { months: 6, label: "прийняття спадщини", cite: "частина перша статті 1270 Цивільного кодексу України" },
+      limitation: { years: 3, label: "позовної давності", cite: "стаття 257 Цивільного кодексу України" },
+      appeal: { days: 30, label: "апеляційного оскарження", cite: "стаття 354 Цивільного процесуального кодексу України" }
+    };
+    var dlDateEl = document.getElementById("dl-date");
+    var dlResultEl = document.getElementById("dl-result");
+    var dlNoteEl = document.getElementById("dl-note");
+
+    function dlCompute() {
+      if (!dlDateEl.value) {
+        dlResultEl.textContent = "—";
+        dlNoteEl.textContent = "Оберіть дату події, щоб побачити розрахунок.";
+        return;
+      }
+      var rule = dlRules[dlTypeEl.value];
+      var start = new Date(dlDateEl.value + "T00:00:00");
+      var end = new Date(start);
+      if (rule.months) end.setMonth(end.getMonth() + rule.months);
+      if (rule.years) end.setFullYear(end.getFullYear() + rule.years);
+      if (rule.days) end.setDate(end.getDate() + rule.days);
+
+      var fmt = new Intl.DateTimeFormat("uk-UA", { day: "numeric", month: "long", year: "numeric" });
+      dlResultEl.textContent = fmt.format(end);
+
+      var today = new Date(); today.setHours(0, 0, 0, 0);
+      var diffDays = Math.round((end - today) / 86400000);
+      var daysText = diffDays >= 0 ? ("Залишилось днів: " + diffDays.toLocaleString("uk-UA") + ". ") : "Строк, за цим орієнтовним розрахунком, уже минув. ";
+      dlNoteEl.textContent = daysText + "Строк " + rule.label + " відповідно до " + rule.cite + ".";
+    }
+    dlTypeEl.addEventListener("change", dlCompute);
+    dlDateEl.addEventListener("change", dlCompute);
+    dlCompute();
+  }
+
+  /* ---- Salary indexation calculator (kalkulyatory.html) ---- */
+  var ixSalaryEl = document.getElementById("ix-salary");
+  if (ixSalaryEl) {
+    var IX_CAP = 3328; /* прожитковий мінімум для працездатних осіб, 2026 */
+    var IX_THRESHOLD = 103;
+    var ixCpiEl = document.getElementById("ix-cpi");
+    var ixTimeEl = document.getElementById("ix-time");
+    var ixResultEl = document.getElementById("ix-result");
+    var ixNoteEl = document.getElementById("ix-note");
+    var ixBaseNote = ixNoteEl.textContent;
+
+    function ixCompute() {
+      var salary = parseFloat(ixSalaryEl.value);
+      var cpi = parseFloat(ixCpiEl.value);
+      var timePct = parseFloat(ixTimeEl.value);
+      if (!salary || salary <= 0 || !cpi || cpi <= 0) {
+        ixResultEl.textContent = "—";
+        ixNoteEl.textContent = ixBaseNote;
+        return;
+      }
+      if (!timePct || timePct <= 0 || timePct > 100) timePct = 100;
+
+      if (cpi <= IX_THRESHOLD) {
+        ixResultEl.textContent = "0 грн";
+        ixNoteEl.textContent = "Право на індексацію ще не виникло: накопичений ІСЦ має перевищити поріг " + IX_THRESHOLD + "%. " + ixBaseNote;
+        return;
+      }
+      var base = Math.min(salary, IX_CAP);
+      var amount = base * (cpi - 100) / 100 * (timePct / 100);
+      amount = Math.round(amount);
+      ixResultEl.textContent = amount.toLocaleString("uk-UA") + " грн";
+      ixNoteEl.textContent = "Розрахунок: " + base.toLocaleString("uk-UA") + " грн × (" + cpi + "% − 100%) × " + timePct + "%. " + ixBaseNote;
+    }
+    ixSalaryEl.addEventListener("input", ixCompute);
+    ixCpiEl.addEventListener("input", ixCompute);
+    ixTimeEl.addEventListener("input", ixCompute);
+    ixCompute();
+  }
+
+  /* ---- Vacation days calculator (kalkulyatory.html) ---- */
+  var vacHireEl = document.getElementById("vac-hire");
+  if (vacHireEl) {
+    var vacAsofEl = document.getElementById("vac-asof");
+    var vacResultEl = document.getElementById("vac-result");
+    var vacNoteEl = document.getElementById("vac-note");
+
+    var todayIso = new Date().toISOString().slice(0, 10);
+    if (!vacAsofEl.value) vacAsofEl.value = todayIso;
+
+    function fullMonthsBetween(a, b) {
+      var months = (b.getFullYear() - a.getFullYear()) * 12 + (b.getMonth() - a.getMonth());
+      if (b.getDate() < a.getDate()) months -= 1;
+      return Math.max(0, months);
+    }
+
+    function vacCompute() {
+      if (!vacHireEl.value || !vacAsofEl.value) {
+        vacResultEl.textContent = "—";
+        vacNoteEl.textContent = "Вкажіть дату працевлаштування та дату розрахунку.";
+        return;
+      }
+      var hire = new Date(vacHireEl.value + "T00:00:00");
+      var asof = new Date(vacAsofEl.value + "T00:00:00");
+      if (asof < hire) {
+        vacResultEl.textContent = "—";
+        vacNoteEl.textContent = "Дата розрахунку не може бути раніше дати працевлаштування.";
+        return;
+      }
+      var totalMonths = fullMonthsBetween(hire, asof);
+      var workingYearNumber, monthsIntoYear;
+      if (totalMonths === 0) {
+        workingYearNumber = 1; monthsIntoYear = 0;
+      } else {
+        workingYearNumber = Math.floor((totalMonths - 1) / 12) + 1;
+        monthsIntoYear = totalMonths - (workingYearNumber - 1) * 12;
+      }
+      var accrued = Math.min(24, monthsIntoYear * 2);
+
+      vacResultEl.textContent = accrued + " " + (accrued === 1 ? "день" : (accrued >= 2 && accrued <= 4 ? "дні" : "днів"));
+
+      var noteParts = [];
+      noteParts.push("Це " + workingYearNumber + "-й робочий рік (відлічується від дати працевлаштування, а не з початку календарного року).");
+      if (totalMonths < 6) {
+        noteParts.push("Право на використання щорічної відпустки за загальним правилом виникає після 6 місяців безперервної роботи (частина п'ята статті 10 Закону України «Про відпустки»); за згодою сторін відпустку можливо надати й раніше.");
+      }
+      noteParts.push("Розрахунок для стандартної щорічної основної відпустки — 24 календарні дні на рік (стаття 6 Закону України «Про відпустки»), без урахування додаткових відпусток і перерв у страховому стажі.");
+      vacNoteEl.textContent = noteParts.join(" ");
+    }
+    vacHireEl.addEventListener("change", vacCompute);
+    vacAsofEl.addEventListener("change", vacCompute);
+    vacCompute();
+  }
 })();
