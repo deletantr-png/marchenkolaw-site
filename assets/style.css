@@ -279,6 +279,22 @@ nav.links > a:hover,.has-sub:hover > button,nav.links > a.active{color:var(--gol
 .adv h3{font-size:1.14rem;margin-bottom:10px;}
 .adv p{font-size:.9rem;color:var(--ink-soft);margin:0;}
 
+/* ---------- Practice-area navigator (wizard) ---------- */
+.wizard{max-width:760px;margin:0 auto;}
+.wizard-q{font-family:var(--ff-display);font-size:1.1rem;color:var(--on-dark);margin-bottom:20px;text-align:center;}
+.wizard-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px;}
+.wizard-opt{background:var(--navy-850);border:1px solid var(--navy-line);border-radius:var(--radius);padding:16px 20px;color:var(--on-dark);font-family:inherit;font-size:.92rem;text-align:left;cursor:pointer;transition:border-color .25s,transform .25s,background .25s;}
+.wizard-opt:hover{border-color:var(--gold);background:var(--navy-800);transform:translateY(-2px);}
+.wizard-opt:focus-visible{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-soft);}
+.wizard-back{background:none;border:none;color:var(--gold);font-size:.85rem;margin-top:20px;cursor:pointer;display:block;text-align:center;width:100%;font-family:inherit;}
+.wizard-back:hover{text-decoration:underline;}
+.wizard-result{background:var(--navy-850);border:1px solid var(--gold);border-radius:var(--radius-lg);padding:36px 32px;text-align:center;}
+.wizard-result-label{font-size:.72rem;letter-spacing:.16em;text-transform:uppercase;color:var(--gold);margin-bottom:10px;font-weight:700;}
+.wizard-result h3{font-size:1.5rem;color:var(--on-dark);margin-bottom:12px;}
+.wizard-result p{color:var(--on-dark-soft);margin-bottom:24px;}
+.wizard-result-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:18px;}
+[hidden]{display:none !important;}
+
 /* ---------- Pricing ---------- */
 .price-note{background:var(--navy-850);border:1px solid var(--navy-line);border-radius:var(--radius-lg);padding:22px 26px;color:var(--on-dark-soft);font-size:.92rem;margin-bottom:34px;display:flex;gap:16px;align-items:flex-start;}
 .price-note svg{width:24px;height:24px;color:var(--gold);flex:none;margin-top:2px;}
@@ -294,6 +310,15 @@ nav.links > a:hover,.has-sub:hover > button,nav.links > a.active{color:var(--gol
 .price-table td:last-child{text-align:right;white-space:nowrap;color:var(--navy-800);font-weight:700;font-family:var(--ff-display);}
 .price-table tr:hover{background:var(--cream);}
 .price-legend{font-size:.82rem;color:var(--ink-mute);margin-top:14px;}
+.fee-calc{background:var(--paper);border-radius:var(--radius-lg);padding:30px 32px;box-shadow:var(--shadow-sm);border:1px solid var(--cream-2);margin-bottom:34px;}
+.fee-calc > h3{font-size:1.34rem;color:var(--ink);margin-bottom:6px;display:flex;align-items:center;gap:12px;}
+.fee-calc > h3 .bar{width:26px;height:2px;background:var(--gold);flex:none;}
+.fee-calc .sub{color:var(--ink-mute);font-size:.9rem;margin-bottom:20px;}
+.fee-calc-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:18px;}
+.fee-result{background:var(--navy-900);border-radius:var(--radius);padding:18px 22px;display:flex;align-items:baseline;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.fee-result-label{font-size:.85rem;color:var(--on-dark-soft);}
+.fee-result-value{font-family:var(--ff-display);font-size:1.5rem;font-weight:700;color:var(--gold-bright);}
+@media (max-width:640px){.fee-calc-grid{grid-template-columns:1fr;}}
 
 /* on-navy pricing variant */
 .on-navy .price-table{background:rgba(255,255,255,.02);border-color:var(--navy-line);}
