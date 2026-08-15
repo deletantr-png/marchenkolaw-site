@@ -414,4 +414,61 @@
     vacAsofEl.addEventListener("change", vacCompute);
     vacCompute();
   }
+
+  /* ---- Mediation vs court comparison (mediatsiya.html) ---- */
+  var cmpToggleEl = document.querySelector(".cmp-toggle");
+  if (cmpToggleEl) {
+    var cmpData = {
+      family: {
+        timeMed: "Зазвичай 2–6 тижнів",
+        timeCourt: "Від 6 місяців до 2 років з урахуванням апеляції",
+        barMedLabel: "2–6 тижнів", barCourtLabel: "6–24 місяці",
+        barMedWidth: 12, barCourtWidth: 100,
+        pubCourt: "Відкритий судовий процес за загальним правилом",
+        costCourt: "Судовий збір і витрати на представництво в усіх інстанціях",
+        relMed: "Орієнтована на збереження стосунків — особливо важливо за наявності спільних дітей"
+      },
+      business: {
+        timeMed: "Зазвичай 2–4 тижні",
+        timeCourt: "Від 6–12 місяців у першій інстанції, довше з апеляцією чи касацією",
+        barMedLabel: "2–4 тижні", barCourtLabel: "6–18+ місяців",
+        barMedWidth: 10, barCourtWidth: 100,
+        pubCourt: "Рішення потрапляє до Єдиного державного реєстру судових рішень",
+        costCourt: "Судовий збір (залежить від суми позову) і представництво в усіх інстанціях",
+        relMed: "Залишає можливість продовжити ділові стосунки з контрагентом"
+      }
+    };
+    var cmpButtons = cmpToggleEl.querySelectorAll("button");
+    var cmpEls = {
+      timeMed: document.getElementById("cmp-time-med"),
+      timeCourt: document.getElementById("cmp-time-court"),
+      pubCourt: document.getElementById("cmp-pub-court"),
+      costCourt: document.getElementById("cmp-cost-court"),
+      relMed: document.getElementById("cmp-rel-med"),
+      barMed: document.getElementById("cmp-bar-med"),
+      barCourt: document.getElementById("cmp-bar-court"),
+      barMedLabel: document.getElementById("cmp-bar-med-label"),
+      barCourtLabel: document.getElementById("cmp-bar-court-label")
+    };
+    function cmpRender(key) {
+      var d = cmpData[key];
+      cmpEls.timeMed.textContent = d.timeMed;
+      cmpEls.timeCourt.textContent = d.timeCourt;
+      cmpEls.pubCourt.textContent = d.pubCourt;
+      cmpEls.costCourt.textContent = d.costCourt;
+      cmpEls.relMed.textContent = d.relMed;
+      cmpEls.barMedLabel.textContent = d.barMedLabel;
+      cmpEls.barCourtLabel.textContent = d.barCourtLabel;
+      cmpEls.barMed.style.width = d.barMedWidth + "%";
+      cmpEls.barCourt.style.width = d.barCourtWidth + "%";
+    }
+    cmpButtons.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        cmpButtons.forEach(function (b) { b.classList.remove("active"); });
+        btn.classList.add("active");
+        cmpRender(btn.getAttribute("data-case"));
+      });
+    });
+    cmpRender("family");
+  }
 })();
