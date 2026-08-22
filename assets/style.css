@@ -298,6 +298,12 @@ nav.links > a:hover,.has-sub:hover > button,nav.links > a.active{color:var(--gol
 /* ---------- Pricing ---------- */
 .price-note{background:var(--navy-850);border:1px solid var(--navy-line);border-radius:var(--radius-lg);padding:22px 26px;color:var(--on-dark-soft);font-size:.92rem;margin-bottom:34px;display:flex;gap:16px;align-items:flex-start;}
 .price-note svg{width:24px;height:24px;color:var(--gold);flex:none;margin-top:2px;}
+.calc-tabs{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:34px;}
+.calc-tabs button{background:var(--paper);border:1px solid var(--cream-2);border-radius:100px;padding:10px 20px;color:var(--ink-soft);font-family:inherit;font-size:.86rem;font-weight:600;cursor:pointer;transition:border-color .25s,color .25s,background .25s;box-shadow:var(--shadow-sm);}
+.calc-tabs button.active{background:var(--navy-900);border-color:var(--navy-900);color:var(--on-dark);}
+.calc-tabs button:not(.active):hover{border-color:var(--gold);color:var(--ink);}
+.calc-panel{display:none;}
+.calc-panel.active{display:block;}
 .price-block{margin-bottom:30px;}
 .price-block > h3{font-size:1.34rem;color:var(--ink);margin-bottom:6px;display:flex;align-items:center;gap:12px;}
 .price-block > h3 .bar{width:26px;height:2px;background:var(--gold);}
@@ -361,6 +367,8 @@ nav.links > a:hover,.has-sub:hover > button,nav.links > a.active{color:var(--gol
 .post h3{font-size:1.2rem;margin-bottom:10px;color:var(--ink);}
 .post p{font-size:.9rem;color:var(--ink-soft);flex:1;}
 .post .more{color:var(--gold);font-weight:700;font-size:.82rem;margin-top:10px;display:inline-flex;gap:6px;align-items:center;}
+.post .more svg{width:16px;height:16px;flex:none;transition:transform .3s;}
+.post:hover .more svg{transform:translateX(4px);}
 
 /* ---------- Contact / Forms ---------- */
 .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:start;}

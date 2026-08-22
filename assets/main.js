@@ -471,4 +471,462 @@
     });
     cmpRender("family");
   }
+
+  /* ---- Calculator category tabs (kalkulyatory.html) ---- */
+  var calcTabsEl = document.querySelector(".calc-tabs");
+  if (calcTabsEl) {
+    var calcTabButtons = calcTabsEl.querySelectorAll("button");
+    var calcPanels = document.querySelectorAll(".calc-panel");
+    calcTabButtons.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        var panel = btn.getAttribute("data-panel");
+        calcTabButtons.forEach(function (b) { b.classList.remove("active"); });
+        btn.classList.add("active");
+        calcPanels.forEach(function (p) {
+          p.classList.toggle("active", p.getAttribute("data-panel") === panel);
+        });
+      });
+    });
+  }
+
+  /* ---- Debt under art. 625 of the Civil Code: 3% + inflation losses (kalkulyatory.html) ---- */
+  var d625SumEl = document.getElementById("d625-sum");
+  if (d625SumEl) {
+    var d625CpiEl = document.getElementById("d625-cpi");
+    var d625StartEl = document.getElementById("d625-start");
+    var d625EndEl = document.getElementById("d625-end");
+    var d625ResultEl = document.getElementById("d625-result");
+    var d625NoteEl = document.getElementById("d625-note");
+    var d625BaseNote = d625NoteEl.textContent;
+
+    var d625TodayIso = new Date().toISOString().slice(0, 10);
+    if (!d625EndEl.value) d625EndEl.value = d625TodayIso;
+
+    function d625Compute() {
+      var sum = parseFloat(d625SumEl.value);
+      if (!sum || sum <= 0 || !d625StartEl.value || !d625EndEl.value) {
+        d625ResultEl.textContent = "—";
+        d625NoteEl.textContent = d625BaseNote;
+        return;
+      }
+      var start = new Date(d625StartEl.value + "T00:00:00");
+      var end = new Date(d625EndEl.value + "T00:00:00");
+      var days = Math.round((end - start) / 86400000);
+      if (days < 0) {
+        d625ResultEl.textContent = "—";
+        d625NoteEl.textContent = "Дата розрахунку не може бути раніше дати початку прострочення.";
+        return;
+      }
+      var threePct = sum * 0.03 * days / 365;
+      var cpi = parseFloat(d625CpiEl.value);
+      var inflation = (cpi && cpi > 100) ? sum * (cpi - 100) / 100 : 0;
+      var total = sum + threePct + inflation;
+
+      d625ResultEl.textContent = Math.round(total).toLocaleString("uk-UA") + " грн";
+      var parts = [];
+      parts.push("Прострочення: " + days + " дн.");
+      parts.push("3% річних: " + Math.round(threePct).toLocaleString("uk-UA") + " грн");
+      parts.push(cpi ? ("інфляційні втрати: " + Math.round(inflation).toLocaleString("uk-UA") + " грн") : "інфляційні втрати не вказані");
+      d625NoteEl.textContent = parts.join("; ") + ". " + d625BaseNote;
+    }
+    d625SumEl.addEventListener("input", d625Compute);
+    d625CpiEl.addEventListener("input", d625Compute);
+    d625StartEl.addEventListener("change", d625Compute);
+    d625EndEl.addEventListener("change", d625Compute);
+    d625Compute();
+  }
+
+  /* ---- Court fee (kalkulyatory.html) ---- */
+  var cfTypeEl = document.getElementById("cf-type");
+  if (cfTypeEl) {
+    var CF_PM = 3328; /* прожитковий мінімум для працездатних осіб, 2026 */
+    var cfPayerEl = document.getElementById("cf-payer");
+    var cfPayerFieldEl = document.getElementById("cf-payer-field");
+    var cfPriceEl = document.getElementById("cf-price");
+    var cfPriceFieldEl = document.getElementById("cf-price-field");
+    var cfResultEl = document.getElementById("cf-result");
+    var cfNoteEl = document.getElementById("cf-note");
+    var cfBaseNote = cfNoteEl.textContent;
+
+    function cfUpdateVisibility() {
+      var t = cfTypeEl.value;
+      var needsPrice = (t === "maynovyy" || t === "propertyDivorce");
+      var needsPayer = (t === "maynovyy" || t === "nemaynovyy");
+      cfPriceFieldEl.style.display = needsPrice ? "" : "none";
+      cfPayerFieldEl.style.display = needsPayer ? "" : "none";
+    }
+
+    function cfCompute() {
+      cfUpdateVisibility();
+      var t = cfTypeEl.value;
+      var payer = cfPayerEl.value;
+      var price = parseFloat(cfPriceEl.value) || 0;
+      var fee = 0;
+      var note = "";
+
+      if (t === "maynovyy") {
+        if ((price) <= 0) {
+          cfResultEl.textContent = "—";
+          cfNoteEl.textContent = "Вкажіть ціну позову. " + cfBaseNote;
+          return;
+        }
+        if (payer === "yur") {
+          fee = Math.min(Math.max(price * 0.015, CF_PM), 350 * CF_PM);
+          note = "1,5% ціни позову, не менше 1 та не більше 350 розмірів прожиткового мінімуму.";
+        } else {
+          fee = Math.min(Math.max(price * 0.01, 0.4 * CF_PM), 5 * CF_PM);
+          note = "1% ціни позову, не менше 0,4 та не більше 5 розмірів прожиткового мінімуму.";
+        }
+      } else if (t === "nemaynovyy") {
+        fee = (payer === "yur") ? CF_PM : 0.4 * CF_PM;
+        note = "Фіксована ставка для позовів немайнового характеру.";
+      } else if (t === "divorce") {
+        fee = 0.4 * CF_PM;
+        note = "Фіксована ставка за подання позову про розірвання шлюбу.";
+      } else if (t === "propertyDivorce") {
+        if (price <= 0) {
+          cfResultEl.textContent = "—";
+          cfNoteEl.textContent = "Вкажіть ціну позову. " + cfBaseNote;
+          return;
+        }
+        fee = Math.min(Math.max(price * 0.01, 0.4 * CF_PM), 3 * CF_PM);
+        note = "1% ціни позову, не менше 0,4 та не більше 3 розмірів прожиткового мінімуму.";
+      }
+
+      cfResultEl.textContent = fee.toLocaleString("uk-UA", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " грн";
+      cfNoteEl.textContent = note + " " + cfBaseNote;
+    }
+
+    cfTypeEl.addEventListener("change", cfCompute);
+    cfPayerEl.addEventListener("change", cfCompute);
+    cfPriceEl.addEventListener("input", cfCompute);
+    cfCompute();
+  }
+
+  /* ---- Penalty (double NBU discount rate) (kalkulyatory.html) ---- */
+  var penSumEl = document.getElementById("pen-sum");
+  if (penSumEl) {
+    var penRateEl = document.getElementById("pen-rate");
+    var penStartEl = document.getElementById("pen-start");
+    var penEndEl = document.getElementById("pen-end");
+    var penResultEl = document.getElementById("pen-result");
+    var penNoteEl = document.getElementById("pen-note");
+    var penBaseNote = penNoteEl.textContent;
+
+    var penTodayIso = new Date().toISOString().slice(0, 10);
+    if (!penEndEl.value) penEndEl.value = penTodayIso;
+
+    function penCompute() {
+      var sum = parseFloat(penSumEl.value);
+      var rate = parseFloat(penRateEl.value);
+      if (!sum || sum <= 0 || !rate || rate <= 0 || !penStartEl.value || !penEndEl.value) {
+        penResultEl.textContent = "—";
+        penNoteEl.textContent = penBaseNote;
+        return;
+      }
+      var start = new Date(penStartEl.value + "T00:00:00");
+      var end = new Date(penEndEl.value + "T00:00:00");
+      var days = Math.round((end - start) / 86400000);
+      if (days < 0) {
+        penResultEl.textContent = "—";
+        penNoteEl.textContent = "Дата розрахунку не може бути раніше дати початку прострочення.";
+        return;
+      }
+      var amount = sum * (2 * rate / 100 / 365) * days;
+      penResultEl.textContent = Math.round(amount).toLocaleString("uk-UA") + " грн";
+      penNoteEl.textContent = "Прострочення: " + days + " дн. за ставкою " + rate + "%. " + penBaseNote;
+    }
+    penSumEl.addEventListener("input", penCompute);
+    penRateEl.addEventListener("input", penCompute);
+    penStartEl.addEventListener("change", penCompute);
+    penEndEl.addEventListener("change", penCompute);
+    penCompute();
+  }
+
+  /* ---- Minimum child alimony (kalkulyatory.html) ---- */
+  var almAgeEl = document.getElementById("alm-age");
+  if (almAgeEl) {
+    var almCountEl = document.getElementById("alm-count");
+    var almResultEl = document.getElementById("alm-result");
+    var almNoteEl = document.getElementById("alm-note");
+
+    function almCompute() {
+      var pmChild = (almAgeEl.value === "under6") ? 2817 : 3512; /* прожитковий мінімум для дитини відповідного віку, 2026 */
+      var guaranteed = Math.round(pmChild * 0.5 * 100) / 100;
+      var recommended = pmChild;
+      var shareMap = { "1": "1/4", "2": "1/3", "3": "1/2" };
+      var share = shareMap[almCountEl.value];
+
+      almResultEl.textContent = guaranteed.toLocaleString("uk-UA", { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + " грн";
+      almNoteEl.textContent = "Мінімальний рекомендований розмір (за наявності достатнього доходу платника) — " + recommended.toLocaleString("uk-UA") + " грн (стаття 182 Сімейного кодексу України). Орієнтовна частка доходу платника при стягненні у частці заробітку — " + share + " (стаття 183 Сімейного кодексу України). У наказному провадженні стягнення аліментів у частці доходу обмежене 10 прожитковими мінімумами на дитину відповідного віку (частина п'ята статті 183 СК); у позовному провадженні законодавчого максимуму немає — суд визначає розмір з урахуванням доведених потреб дитини.";
+    }
+    almAgeEl.addEventListener("change", almCompute);
+    almCountEl.addEventListener("change", almCompute);
+    almCompute();
+  }
+
+  /* ---- Alimony arrears penalty (kalkulyatory.html) ---- */
+  var almpenDebtEl = document.getElementById("almpen-debt");
+  if (almpenDebtEl) {
+    var almpenStartEl = document.getElementById("almpen-start");
+    var almpenEndEl = document.getElementById("almpen-end");
+    var almpenResultEl = document.getElementById("almpen-result");
+    var almpenNoteEl = document.getElementById("almpen-note");
+    var almpenBaseNote = almpenNoteEl.textContent;
+
+    var almpenTodayIso = new Date().toISOString().slice(0, 10);
+    if (!almpenEndEl.value) almpenEndEl.value = almpenTodayIso;
+
+    function almpenCompute() {
+      var debt = parseFloat(almpenDebtEl.value);
+      if (!debt || debt <= 0 || !almpenStartEl.value || !almpenEndEl.value) {
+        almpenResultEl.textContent = "—";
+        almpenNoteEl.textContent = almpenBaseNote;
+        return;
+      }
+      var start = new Date(almpenStartEl.value + "T00:00:00");
+      var end = new Date(almpenEndEl.value + "T00:00:00");
+      var days = Math.round((end - start) / 86400000);
+      if (days < 0) {
+        almpenResultEl.textContent = "—";
+        almpenNoteEl.textContent = "Дата розрахунку не може бути раніше дати виникнення заборгованості.";
+        return;
+      }
+      var raw = debt * 0.01 * days;
+      var cap = debt;
+      var result = Math.min(raw, cap);
+      almpenResultEl.textContent = Math.round(result).toLocaleString("uk-UA") + " грн";
+      almpenNoteEl.textContent = (raw > cap ? "Розрахункова сума перевищила заборгованість і обмежена 100% (" + Math.round(cap).toLocaleString("uk-UA") + " грн). " : ("Прострочення: " + days + " дн. ")) + almpenBaseNote;
+    }
+    almpenDebtEl.addEventListener("input", almpenCompute);
+    almpenStartEl.addEventListener("change", almpenCompute);
+    almpenEndEl.addEventListener("change", almpenCompute);
+    almpenCompute();
+  }
+
+  /* ---- Compensation for delayed settlement upon dismissal, art. 117 KZpP (kalkulyatory.html) ---- */
+  var setAvgEl = document.getElementById("set-avg");
+  if (setAvgEl) {
+    var setStartEl = document.getElementById("set-start");
+    var setEndEl = document.getElementById("set-end");
+    var setResultEl = document.getElementById("set-result");
+    var setNoteEl = document.getElementById("set-note");
+    var setBaseNote = setNoteEl.textContent;
+
+    var setTodayIso = new Date().toISOString().slice(0, 10);
+    if (!setEndEl.value) setEndEl.value = setTodayIso;
+
+    function setCompute() {
+      var avg = parseFloat(setAvgEl.value);
+      if (!avg || avg <= 0 || !setStartEl.value || !setEndEl.value) {
+        setResultEl.textContent = "—";
+        setNoteEl.textContent = setBaseNote;
+        return;
+      }
+      var start = new Date(setStartEl.value + "T00:00:00");
+      var end = new Date(setEndEl.value + "T00:00:00");
+      if (end < start) {
+        setResultEl.textContent = "—";
+        setNoteEl.textContent = "Дата розрахунку не може бути раніше дати звільнення.";
+        return;
+      }
+      var cap = new Date(start);
+      cap.setMonth(cap.getMonth() + 6);
+      var capped = end > cap;
+      var effectiveEnd = capped ? cap : end;
+      var days = Math.round((effectiveEnd - start) / 86400000);
+      var fullDays = Math.round((end - start) / 86400000);
+      var amount = avg * days;
+
+      setResultEl.textContent = Math.round(amount).toLocaleString("uk-UA") + " грн";
+      setNoteEl.textContent = (capped ? ("Період обмежено шістьма місяцями з дня звільнення (враховано " + days + " з " + fullDays + " фактичних днів затримки). ") : ("Затримка: " + days + " дн. ")) + setBaseNote;
+    }
+    setAvgEl.addEventListener("input", setCompute);
+    setStartEl.addEventListener("change", setCompute);
+    setEndEl.addEventListener("change", setCompute);
+    setCompute();
+  }
+
+  /* ---- Severance pay, art. 44 KZpP (kalkulyatory.html) ---- */
+  var sevGroundEl = document.getElementById("sev-ground");
+  if (sevGroundEl) {
+    var SEV_MZP = 8647; /* мінімальна заробітна плата, 2026 */
+    var sevAvgEl = document.getElementById("sev-avg");
+    var sevResultEl = document.getElementById("sev-result");
+    var sevNoteEl = document.getElementById("sev-note");
+
+    var sevRules = {
+      x1: { mult: 1, label: "не менше середньомісячного заробітку (1×)" },
+      military: { fixed: 2 * SEV_MZP, label: "2 мінімальні заробітні плати" },
+      x3: { mult: 3, label: "не менше тримісячного середнього заробітку (3×)" },
+      x6: { mult: 6, label: "не менше шестимісячного середнього заробітку (6×)" }
+    };
+
+    function sevCompute() {
+      var rule = sevRules[sevGroundEl.value];
+      if (rule.fixed) {
+        sevResultEl.textContent = rule.fixed.toLocaleString("uk-UA") + " грн";
+        sevNoteEl.textContent = "Фіксований мінімум — " + rule.label + " (мінімальна заробітна плата у 2026 році — 8 647 грн), незалежно від заробітку працівника.";
+        return;
+      }
+      var avg = parseFloat(sevAvgEl.value);
+      if (!avg || avg <= 0) {
+        sevResultEl.textContent = "—";
+        sevNoteEl.textContent = "Вкажіть середньомісячний заробіток, щоб побачити розрахунок.";
+        return;
+      }
+      var amount = avg * rule.mult;
+      sevResultEl.textContent = Math.round(amount).toLocaleString("uk-UA") + " грн";
+      sevNoteEl.textContent = "Мінімум — " + rule.label + ". Це встановлений законом мінімум; колективний чи трудовий договір може передбачати вищий розмір.";
+    }
+    sevGroundEl.addEventListener("change", sevCompute);
+    sevAvgEl.addEventListener("input", sevCompute);
+    sevCompute();
+  }
+
+  /* ---- Executive (enforcement) fee (kalkulyatory.html) ---- */
+  var efTypeEl = document.getElementById("ef-type");
+  if (efTypeEl) {
+    var EF_MZP = 8647; /* мінімальна заробітна плата, 2026 */
+    var efSumEl = document.getElementById("ef-sum");
+    var efSumFieldEl = document.getElementById("ef-sum-field");
+    var efResultEl = document.getElementById("ef-result");
+    var efNoteEl = document.getElementById("ef-note");
+    var efBaseNote = efNoteEl.textContent;
+
+    function efCompute() {
+      var t = efTypeEl.value;
+      efSumFieldEl.style.display = (t === "property") ? "" : "none";
+      var amount;
+      if (t === "property") {
+        var sum = parseFloat(efSumEl.value);
+        if (!sum || sum <= 0) {
+          efResultEl.textContent = "—";
+          efNoteEl.textContent = "Вкажіть суму, що підлягає стягненню. " + efBaseNote;
+          return;
+        }
+        amount = sum * 0.10;
+      } else if (t === "nonpropFiz") {
+        amount = 2 * EF_MZP;
+      } else {
+        amount = 4 * EF_MZP;
+      }
+      efResultEl.textContent = Math.round(amount).toLocaleString("uk-UA") + " грн";
+      efNoteEl.textContent = efBaseNote;
+    }
+    efTypeEl.addEventListener("change", efCompute);
+    efSumEl.addEventListener("input", efCompute);
+    efCompute();
+  }
+
+  /* ---- Deadline to present an enforcement document (kalkulyatory.html) ---- */
+  var edTypeEl = document.getElementById("ed-type");
+  if (edTypeEl) {
+    var edForceEl = document.getElementById("ed-force");
+    var edResultEl = document.getElementById("ed-result");
+    var edNoteEl = document.getElementById("ed-note");
+
+    function edCompute() {
+      var t = edTypeEl.value;
+      if (t === "periodic") {
+        edResultEl.textContent = "Протягом усього періоду виплат";
+        edNoteEl.textContent = "Для стягнення періодичних платежів (аліменти тощо) строк пред'явлення обчислюється за кожен платіж окремо і триває протягом усього періоду, на який вони присуджені (частина третя статті 12 Закону України «Про виконавче провадження»).";
+        return;
+      }
+      if (!edForceEl.value) {
+        edResultEl.textContent = "—";
+        edNoteEl.textContent = "Вкажіть дату набрання рішенням законної сили.";
+        return;
+      }
+      var start = new Date(edForceEl.value + "T00:00:00");
+      var end = new Date(start);
+      if (t === "short") end.setMonth(end.getMonth() + 3);
+      else end.setFullYear(end.getFullYear() + 3);
+
+      var fmt = new Intl.DateTimeFormat("uk-UA", { day: "numeric", month: "long", year: "numeric" });
+      edResultEl.textContent = fmt.format(end);
+
+      var today = new Date(); today.setHours(0, 0, 0, 0);
+      var diffDays = Math.round((end - today) / 86400000);
+      var daysText = diffDays >= 0 ? ("Залишилось днів: " + diffDays.toLocaleString("uk-UA") + ". ") : "Строк, за цим орієнтовним розрахунком, уже минув — можливе поновлення пропущеного строку за заявою (стаття 12 Закону). ";
+      edNoteEl.textContent = daysText + "Перебіг строку починається з наступного дня після набрання рішенням законної сили.";
+    }
+    edTypeEl.addEventListener("change", edCompute);
+    edForceEl.addEventListener("change", edCompute);
+    edCompute();
+  }
+
+  /* ---- Working pensioner recalculation eligibility (kalkulyatory.html) ---- */
+  var prLastEl = document.getElementById("pr-last");
+  if (prLastEl) {
+    var prAsofEl = document.getElementById("pr-asof");
+    var prResultEl = document.getElementById("pr-result");
+    var prNoteEl = document.getElementById("pr-note");
+
+    var prTodayIso = new Date().toISOString().slice(0, 10);
+    if (!prAsofEl.value) prAsofEl.value = prTodayIso;
+
+    function prFullMonthsBetween(a, b) {
+      var months = (b.getFullYear() - a.getFullYear()) * 12 + (b.getMonth() - a.getMonth());
+      if (b.getDate() < a.getDate()) months -= 1;
+      return Math.max(0, months);
+    }
+
+    function prCompute() {
+      if (!prLastEl.value || !prAsofEl.value) {
+        prResultEl.textContent = "—";
+        prNoteEl.textContent = "Вкажіть дату призначення або попереднього перерахунку пенсії.";
+        return;
+      }
+      var last = new Date(prLastEl.value + "T00:00:00");
+      var asof = new Date(prAsofEl.value + "T00:00:00");
+      if (asof < last) {
+        prResultEl.textContent = "—";
+        prNoteEl.textContent = "Дата перевірки не може бути раніше дати призначення чи попереднього перерахунку.";
+        return;
+      }
+      var months = prFullMonthsBetween(last, asof);
+      var twoYears = new Date(last); twoYears.setFullYear(twoYears.getFullYear() + 2);
+      var fmt = new Intl.DateTimeFormat("uk-UA", { day: "numeric", month: "long", year: "numeric" });
+
+      prResultEl.textContent = months + " міс. з 24";
+
+      if (months >= 24) {
+        prNoteEl.textContent = "Накопичено достатньо страхового стажу (24 місяці і більше). Якщо це підтверджено даними Пенсійного фонду станом на 1 березня поточного року, перерахунок здійснюється автоматично з 1 квітня без заяви; в іншому разі можна звернутися із заявою (частина четверта статті 42 Закону України «Про загальнообов'язкове державне пенсійне страхування» № 1058-IV).";
+      } else {
+        prNoteEl.textContent = "Ще не накопичено 24 місяців страхового стажу. За заявою перерахунок можливий не раніше ніж через два роки з дати призначення чи попереднього перерахунку — орієнтовно з " + fmt.format(twoYears) + ".";
+      }
+    }
+    prLastEl.addEventListener("change", prCompute);
+    prAsofEl.addEventListener("change", prCompute);
+    prCompute();
+  }
+
+  /* ---- War damage compensation pre-check (kalkulyatory.html) ---- */
+  var mcQ1El = document.getElementById("mc-q1");
+  if (mcQ1El) {
+    var mcQ2El = document.getElementById("mc-q2");
+    var mcQ3El = document.getElementById("mc-q3");
+    var mcQ4El = document.getElementById("mc-q4");
+    var mcResultEl = document.getElementById("mc-result");
+
+    function mcCompute() {
+      var answers = [mcQ1El.value, mcQ2El.value, mcQ3El.value, mcQ4El.value];
+      var noCount = answers.filter(function (a) { return a === "no"; }).length;
+      var unsureCount = answers.filter(function (a) { return a === "unsure"; }).length;
+
+      if (noCount > 0) {
+        mcResultEl.textContent = "Висока ймовірність відмови";
+      } else if (unsureCount > 0) {
+        mcResultEl.textContent = "Потрібно уточнити деталі";
+      } else {
+        mcResultEl.textContent = "Базові умови дотримано";
+      }
+    }
+    mcQ1El.addEventListener("change", mcCompute);
+    mcQ2El.addEventListener("change", mcCompute);
+    mcQ3El.addEventListener("change", mcCompute);
+    mcQ4El.addEventListener("change", mcCompute);
+    mcCompute();
+  }
 })();
