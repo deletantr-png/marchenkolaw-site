@@ -519,6 +519,17 @@ footer.site{background:var(--navy-950);color:var(--on-dark-soft);padding:66px 0 
 .reveal{opacity:0;transform:translateY(24px);transition:opacity .7s var(--ease),transform .7s var(--ease);}
 .reveal.in{opacity:1;transform:none;}
 
+/* ---------- Newsletter ---------- */
+.newsletter-card{background:var(--paper);border-radius:var(--radius-lg);box-shadow:var(--shadow-sm);border:1px solid var(--cream-2);padding:40px 44px;display:grid;grid-template-columns:1.1fr 1fr;gap:44px;align-items:center;}
+.nl-text p{color:var(--ink-soft);margin-top:12px;font-size:.96rem;}
+.nl-row{display:flex;gap:10px;}
+.nl-row input[type="email"]{flex:1;min-width:0;border:1px solid var(--cream-2);background:var(--cream);border-radius:var(--radius);padding:13px 16px;font-family:var(--ff-body);font-size:.95rem;color:var(--ink);}
+.nl-row input[type="email"]:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px var(--gold-soft);background:#fff;}
+.nl-row .btn{white-space:nowrap;}
+.nl-consent{display:flex;gap:9px;align-items:flex-start;margin-top:12px;font-size:.76rem;color:var(--ink-mute);cursor:pointer;}
+.nl-consent input{margin-top:3px;flex-shrink:0;}
+.nl-consent a{color:var(--gold);text-decoration:underline;}
+
 /* ---------- Responsive ---------- */
 @media (max-width:1040px){
   .practice-grid{grid-template-columns:repeat(2,1fr);}
@@ -532,7 +543,7 @@ footer.site{background:var(--navy-950);color:var(--on-dark-soft);padding:66px 0 
   .burger{display:flex;}
   .hero .wrap{grid-template-columns:1fr;gap:40px;}
   .hero-photo{order:-1;}
-  .about-grid,.contact-grid{grid-template-columns:1fr;gap:36px;}
+  .about-grid,.contact-grid,.newsletter-card{grid-template-columns:1fr;gap:36px;}
   .feature-grid{grid-template-columns:1fr;}
   .foot-grid{grid-template-columns:1fr 1fr;gap:32px;}
   .about-photo{max-width:420px;margin:0 auto;}
@@ -546,6 +557,8 @@ footer.site{background:var(--navy-950);color:var(--on-dark-soft);padding:66px 0 
   .foot-grid{grid-template-columns:1fr;}
   .hero-badge{display:none;}
   .cta-band .wrap{flex-direction:column;align-items:flex-start;}
+  .newsletter-card{padding:30px 24px;}
+  .nl-row{flex-direction:column;}
   .cookie{left:12px;right:12px;max-width:none;}
   .price-table td{padding:12px 14px;font-size:.9rem;}
   .topbar .tb-left .tb-hide{display:none;}

@@ -108,6 +108,36 @@
     });
   });
 
+  /* ---- Newsletter signup (Formspree endpoint OR graceful fallback) ---- */
+  document.querySelectorAll("form[data-newsletter]").forEach(function (form) {
+    form.addEventListener("submit", function (ev) {
+      ev.preventDefault();
+      var status = form.querySelector(".form-status");
+      var endpoint = form.getAttribute("action") || "";
+      var configured = endpoint.indexOf("YYYYYYY") === -1 && endpoint.indexOf("formspree.io/f/") !== -1;
+
+      function show(cls, msg) {
+        if (!status) { alert(msg); return; }
+        status.className = "form-status show " + cls;
+        status.textContent = msg;
+      }
+
+      if (configured) {
+        var data = new FormData(form);
+        fetch(endpoint, { method: "POST", body: data, headers: { Accept: "application/json" } })
+          .then(function (r) {
+            if (r.ok) { form.reset(); show("ok", "Дякуємо за підписку! Лист із підтвердженням незабаром прийде на Вашу пошту."); }
+            else { show("info", "Не вдалося оформити підписку автоматично. Напишіть нам на Urist_chetc@ukr.net."); }
+          })
+          .catch(function () { show("info", "Немає з'єднання. Спробуйте пізніше або напишіть на Urist_chetc@ukr.net."); });
+      } else {
+        var email = (form.querySelector("[name=email]") || {}).value || "";
+        window.location.href = "mailto:Urist_chetc@ukr.net?subject=" + encodeURIComponent("Підписка на розсилку") + "&body=" + encodeURIComponent("Прошу підписати на юридичну розсилку: " + email);
+        show("info", "Відкриваємо Вашу поштову програму. Або напишіть на Urist_chetc@ukr.net.");
+      }
+    });
+  });
+
   /* ---- Header shadow on scroll ---- */
   var header = document.querySelector("header.site");
   if (header) {
