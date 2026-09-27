@@ -959,4 +959,70 @@
     mcQ4El.addEventListener("change", mcCompute);
     mcCompute();
   }
+
+  /* ---- PDR/KUpAP fine estimate (kalkulyatory.html) ---- */
+  var pdrTypeEl = document.getElementById("pdr-type");
+  if (pdrTypeEl) {
+    var pdrEarlyEl = document.getElementById("pdr-early");
+    var pdrEarlyFieldEl = document.getElementById("pdr-speed-field");
+    var pdrOffenseEl = document.getElementById("pdr-offense");
+    var pdrOffenseFieldEl = document.getElementById("pdr-dui-field");
+    var pdrResultEl = document.getElementById("pdr-result");
+    var pdrNoteEl = document.getElementById("pdr-note");
+
+    var PDR_SPEED_NOTE = "Штраф за перевищення швидкості не залежить від того, наскільки перевищено дозволену межу, — градацію штрафів пропонували законопроєкти №15348 і №15348-1, але 16 вересня 2026 року Верховна Рада жоден з них не ухвалила. Розмір штрафу — стаття 122 КУпАП; знижка 50% за ранню сплату — стаття 307-1 КУпАП.";
+    var PDR_DUI_NOTE = "Санкції за керування у стані сп'яніння (стаття 130 КУпАП) не залежать від долі законопроєктів про ПДР і жодних змін у 2026 році не зазнали.";
+
+    function pdrCompute() {
+      var t = pdrTypeEl.value;
+      pdrEarlyFieldEl.style.display = (t === "speed") ? "" : "none";
+      pdrOffenseFieldEl.style.display = (t === "dui") ? "" : "none";
+
+      if (t === "speed") {
+        var amount = (pdrEarlyEl.value === "early") ? 170 : 340;
+        pdrResultEl.textContent = amount.toLocaleString("uk-UA") + " грн";
+        pdrNoteEl.textContent = PDR_SPEED_NOTE;
+      } else {
+        var rules = {
+          "1": "17 000 грн з позбавленням права керування транспортними засобами на 1 рік",
+          "2": "34 000 грн з позбавленням права керування на 3 роки",
+          "3": "51 000 грн з конфіскацією транспортного засобу та позбавленням права керування на строк до 10 років"
+        };
+        pdrResultEl.textContent = rules[pdrOffenseEl.value];
+        pdrNoteEl.textContent = PDR_DUI_NOTE;
+      }
+    }
+    pdrTypeEl.addEventListener("change", pdrCompute);
+    pdrEarlyEl.addEventListener("change", pdrCompute);
+    pdrOffenseEl.addEventListener("change", pdrCompute);
+    pdrCompute();
+  }
+
+  /* ---- PDR/KUpAP ruling appeal pre-check (kalkulyatory.html) ---- */
+  var pdrchkQ1El = document.getElementById("pdrchk-q1");
+  if (pdrchkQ1El) {
+    var pdrchkQ2El = document.getElementById("pdrchk-q2");
+    var pdrchkQ3El = document.getElementById("pdrchk-q3");
+    var pdrchkQ4El = document.getElementById("pdrchk-q4");
+    var pdrchkResultEl = document.getElementById("pdrchk-result");
+
+    function pdrchkCompute() {
+      var answers = [pdrchkQ1El.value, pdrchkQ2El.value, pdrchkQ3El.value, pdrchkQ4El.value];
+      var noCount = answers.filter(function (a) { return a === "no"; }).length;
+      var unsureCount = answers.filter(function (a) { return a === "unsure"; }).length;
+
+      if (noCount > 0) {
+        pdrchkResultEl.textContent = "Ймовірно, є підстави оскаржити";
+      } else if (unsureCount > 0) {
+        pdrchkResultEl.textContent = "Потрібно уточнити деталі";
+      } else {
+        pdrchkResultEl.textContent = "Формальних недоліків не виявлено";
+      }
+    }
+    pdrchkQ1El.addEventListener("change", pdrchkCompute);
+    pdrchkQ2El.addEventListener("change", pdrchkCompute);
+    pdrchkQ3El.addEventListener("change", pdrchkCompute);
+    pdrchkQ4El.addEventListener("change", pdrchkCompute);
+    pdrchkCompute();
+  }
 })();
