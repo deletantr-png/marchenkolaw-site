@@ -129,6 +129,7 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <button type="button" data-panel="b">Сімейні та спадкові спори</button>
     <button type="button" data-panel="c">Трудові спори</button>
     <button type="button" data-panel="d">Виконавче провадження, пенсія, компенсації</button>
+    <button type="button" data-panel="e">ПДР та адмінправопорушення</button>
   </div>
 
   <div class="calc-panel active" data-panel="a">
@@ -522,6 +523,77 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
           <span class="fee-result-value" id="mc-result">—</span>
         </div>
         <p class="price-legend" style="margin-top:14px;" id="mc-note">Це орієнтовний фільтр за найзагальнішими умовами програм, а не оцінка суми чи строку виплати. Остаточне рішення ухвалює комісія з розгляду питань щодо надання компенсації за результатами розгляду поданих документів та відомостей Державного реєстру майна, пошкодженого та знищеного внаслідок бойових дій.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="calc-panel" data-panel="e">
+
+    <div class="price-block reveal">
+      <h3><span class="bar"></span>Штраф за порушення ПДР</h3>
+      <p class="sub">Орієнтовний розмір штрафу за найпоширенішими порушеннями Правил дорожнього руху станом на вересень 2026 року.</p>
+      <div class="fee-calc">
+        <div class="fee-calc-grid">
+          <div class="field">
+            <label for="pdr-type">Тип порушення</label>
+            <select id="pdr-type">
+              <option value="speed">Перевищення швидкості</option>
+              <option value="dui">Керування у стані алкогольного чи наркотичного сп'яніння</option>
+            </select>
+          </div>
+          <div class="field" id="pdr-speed-field">
+            <label for="pdr-early">Сплата штрафу</label>
+            <select id="pdr-early">
+              <option value="early">Протягом 10 днів з дня винесення постанови</option>
+              <option value="late">Пізніше 10 днів</option>
+            </select>
+          </div>
+          <div class="field" id="pdr-dui-field" style="display:none;">
+            <label for="pdr-offense">Порушення вчинено</label>
+            <select id="pdr-offense">
+              <option value="1">Вперше</option>
+              <option value="2">Повторно протягом року</option>
+              <option value="3">Втретє протягом року</option>
+            </select>
+          </div>
+        </div>
+        <div class="fee-result">
+          <span class="fee-result-label">Орієнтовний розмір штрафу</span>
+          <span class="fee-result-value" id="pdr-result">—</span>
+        </div>
+        <p class="price-legend" style="margin-top:14px;" id="pdr-note"></p>
+      </div>
+    </div>
+
+    <div class="price-block reveal">
+      <h3><span class="bar"></span>Чи є підстави оскаржити постанову?</h3>
+      <p class="sub">Попередній фільтр за найпоширенішими процедурними підставами оскарження постанови за статтею 122 КУпАП. Не є гарантією результату.</p>
+      <div class="fee-calc">
+        <div class="fee-calc-grid">
+          <div class="field">
+            <label for="pdrchk-q1">Оскаржуєте (плануєте оскаржити) постанову протягом 10 днів з дня вручення?</label>
+            <select id="pdrchk-q1"><option value="yes">Так</option><option value="no">Ні, строк уже минув</option><option value="unsure">Не впевнений(а)</option></select>
+          </div>
+          <div class="field">
+            <label for="pdrchk-q2">Копію протоколу та постанови Вам вручили особисто, під підпис?</label>
+            <select id="pdrchk-q2"><option value="yes">Так</option><option value="no">Ні / із запізненням / поштою</option><option value="unsure">Не впевнений(а)</option></select>
+          </div>
+          <div class="field">
+            <label for="pdrchk-q3">Під час складання протоколу Вам роз'яснили права (на правничу допомогу, не свідчити проти себе) і зафіксували це в протоколі?</label>
+            <select id="pdrchk-q3"><option value="yes">Так</option><option value="no">Ні / не пам'ятаю</option><option value="unsure">Протокол не бачив(ла)</option></select>
+          </div>
+          <div class="field">
+            <label for="pdrchk-q4">У постанові точно вказані дата, час, місце порушення, стаття КУпАП і розмір штрафу?</label>
+            <select id="pdrchk-q4"><option value="yes">Так</option><option value="no">Ні, є розбіжності</option><option value="unsure">Не впевнений(а)</option></select>
+          </div>
+        </div>
+        <div class="fee-result">
+          <span class="fee-result-label">Попередній висновок</span>
+          <span class="fee-result-value" id="pdrchk-result">—</span>
+        </div>
+        <p class="price-legend" style="margin-top:14px;" id="pdrchk-note">Це орієнтовний фільтр за найпоширенішими процедурними підставами оскарження, а не гарантія результату. Остаточний висновок можливий лише після ознайомлення адвоката з протоколом і постановою в оригіналі.</p>
+        <div style="margin-top:18px;"><a class="btn btn--gold" href="index.html#contact">Замовити перевірку постанови</a></div>
       </div>
     </div>
 
