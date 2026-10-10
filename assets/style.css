@@ -569,3 +569,10 @@ footer.site{background:var(--navy-950);color:var(--on-dark-soft);padding:66px 0 
   .reveal{opacity:1;transform:none;}
   .hero h1 .wd{opacity:1;filter:none;transform:none;}
 }
+
+/* fix 2026-10-10: readable rich text and info cards inside dark (on-navy) sections */
+.on-navy .rich p,.on-navy .rich ul li,.on-navy .rich ol li{color:var(--on-dark-soft);}
+.on-navy .rich strong{color:var(--on-dark);}
+.on-navy .rich h3{color:var(--gold-bright);}
+.on-navy .rich .callout p,.on-navy .rich .callout strong{color:var(--ink);}
+.on-navy .info h3{color:var(--navy-800);}
