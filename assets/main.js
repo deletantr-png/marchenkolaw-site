@@ -73,68 +73,76 @@
     });
   } catch (e) { if (cookie) cookie.classList.add("show"); }
 
-  /* ---- Forms (Formspree endpoint OR graceful fallback) ---- */
+  /* ---- Forms: sending via FormSubmit (formsubmit.co) — no email required from the client ---- */
+  var CONTACTS_HTML = 'Будь ласка, зв’яжіться з нами напряму: ' +
+    '<a href="tel:+380978786500">+38 (097) 878-65-00</a> · ' +
+    '<a href="https://t.me/+380978786500" target="_blank" rel="noopener">Telegram</a> · ' +
+    '<a href="viber://chat?number=+380978786500">Viber</a> · ' +
+    '<a href="https://wa.me/380978786500" target="_blank" rel="noopener">WhatsApp</a>';
+
+  function formReady(endpoint) {
+    if (!endpoint) return false;
+    if (endpoint.indexOf("formsubmit.co/") !== -1) return true;
+    return endpoint.indexOf("formspree.io/f/") !== -1 && !/XXXXXXX|YYYYYYY/.test(endpoint);
+  }
+
+  function setStatus(form, cls, text, html) {
+    var status = form.querySelector(".form-status");
+    if (!status) return;
+    status.className = "form-status show " + cls;
+    if (html) { status.innerHTML = text + " " + html; } else { status.textContent = text; }
+  }
+
+  function sendForm(form, extra, okText) {
+    var endpoint = form.getAttribute("action") || "";
+    var btn = form.querySelector("button[type=submit]");
+    var btnText = btn ? btn.textContent : "";
+    if (!formReady(endpoint)) {
+      setStatus(form, "info", "Онлайн-форма тимчасово недоступна.", CONTACTS_HTML);
+      return;
+    }
+    var data = new FormData(form);
+    Object.keys(extra).forEach(function (k) { data.append(k, extra[k]); });
+    if (btn) { btn.disabled = true; btn.textContent = "Надсилаємо…"; }
+    fetch(endpoint, { method: "POST", body: data, headers: { Accept: "application/json" } })
+      .then(function (r) { return r.json().catch(function () { return { success: r.ok }; }); })
+      .then(function (res) {
+        var ok = res && (res.success === true || res.success === "true" || res.ok === true || (res.next && !res.errors));
+        if (ok) { form.reset(); setStatus(form, "ok", okText); }
+        else { setStatus(form, "info", "Не вдалося надіслати запит автоматично.", CONTACTS_HTML); }
+      })
+      .catch(function () { setStatus(form, "info", "Немає з’єднання з сервером.", CONTACTS_HTML); })
+      .then(function () { if (btn) { btn.disabled = false; btn.textContent = btnText; } });
+  }
+
   document.querySelectorAll("form[data-lead]").forEach(function (form) {
     form.addEventListener("submit", function (ev) {
       ev.preventDefault();
-      var status = form.querySelector(".form-status");
-      var endpoint = form.getAttribute("action") || "";
-      var configured = endpoint.indexOf("XXXXXXX") === -1 && endpoint.indexOf("formspree.io/f/") !== -1;
-
-      function show(cls, msg) {
-        if (!status) { alert(msg); return; }
-        status.className = "form-status show " + cls;
-        status.textContent = msg;
+      var phoneEl = form.querySelector("[name=phone]");
+      var digits = phoneEl ? phoneEl.value.replace(/\D/g, "") : "";
+      if (digits.length < 10) {
+        setStatus(form, "info", "Перевірте, будь ласка, номер телефону — у ньому має бути щонайменше 10 цифр.");
+        if (phoneEl) phoneEl.focus();
+        return;
       }
-
-      if (configured) {
-        var data = new FormData(form);
-        fetch(endpoint, { method: "POST", body: data, headers: { Accept: "application/json" } })
-          .then(function (r) {
-            if (r.ok) { form.reset(); show("ok", "Дякуємо! Ваш запит надіслано. Ми зв'яжемося з Вами найближчим часом."); }
-            else { show("info", "Не вдалося надіслати автоматично. Зателефонуйте, будь ласка: +38 097 878-65-00."); }
-          })
-          .catch(function () { show("info", "Немає зʼєднання. Зателефонуйте, будь ласка: +38 097 878-65-00 або напишіть у Telegram/Viber."); });
-      } else {
-        /* Fallback: prefill mailto so the form is usable before Formspree is connected */
-        var name = (form.querySelector("[name=name]") || {}).value || "";
-        var phone = (form.querySelector("[name=phone]") || {}).value || "";
-        var topic = (form.querySelector("[name=topic]") || {}).value || "";
-        var msg = (form.querySelector("[name=message]") || {}).value || "";
-        var body = "Ім'я: " + name + "%0D%0AТелефон: " + phone + (topic ? "%0D%0AНапрям: " + topic : "") + (msg ? "%0D%0AПовідомлення: " + msg : "");
-        window.location.href = "mailto:Urist_chetc@ukr.net?subject=" + encodeURIComponent("Запит на консультацію з сайту") + "&body=" + body;
-        show("info", "Відкриваємо Вашу поштову програму. Або зателефонуйте: +38 097 878-65-00.");
-      }
+      var name = (form.querySelector("[name=name]") || {}).value || "";
+      sendForm(form, {
+        _subject: "Запит на консультацію з сайту — " + name,
+        _template: "table",
+        _captcha: "false"
+      }, "Дякуємо! Ваш запит надіслано. Ми зателефонуємо Вам найближчим часом.");
     });
   });
 
-  /* ---- Newsletter signup (Formspree endpoint OR graceful fallback) ---- */
+  /* ---- Newsletter signup ---- */
   document.querySelectorAll("form[data-newsletter]").forEach(function (form) {
     form.addEventListener("submit", function (ev) {
       ev.preventDefault();
-      var status = form.querySelector(".form-status");
-      var endpoint = form.getAttribute("action") || "";
-      var configured = endpoint.indexOf("YYYYYYY") === -1 && endpoint.indexOf("formspree.io/f/") !== -1;
-
-      function show(cls, msg) {
-        if (!status) { alert(msg); return; }
-        status.className = "form-status show " + cls;
-        status.textContent = msg;
-      }
-
-      if (configured) {
-        var data = new FormData(form);
-        fetch(endpoint, { method: "POST", body: data, headers: { Accept: "application/json" } })
-          .then(function (r) {
-            if (r.ok) { form.reset(); show("ok", "Дякуємо за підписку! Лист із підтвердженням незабаром прийде на Вашу пошту."); }
-            else { show("info", "Не вдалося оформити підписку автоматично. Напишіть нам на Urist_chetc@ukr.net."); }
-          })
-          .catch(function () { show("info", "Немає з'єднання. Спробуйте пізніше або напишіть на Urist_chetc@ukr.net."); });
-      } else {
-        var email = (form.querySelector("[name=email]") || {}).value || "";
-        window.location.href = "mailto:Urist_chetc@ukr.net?subject=" + encodeURIComponent("Підписка на розсилку") + "&body=" + encodeURIComponent("Прошу підписати на юридичну розсилку: " + email);
-        show("info", "Відкриваємо Вашу поштову програму. Або напишіть на Urist_chetc@ukr.net.");
-      }
+      sendForm(form, {
+        _subject: "Підписка на юридичну розсилку з сайту",
+        _template: "table",
+        _captcha: "false"
+      }, "Дякуємо за підписку! Ми додамо Вашу адресу до розсилки.");
     });
   });
 
